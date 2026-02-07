@@ -10,6 +10,154 @@ import { scene, floorMat, wallMat } from './scene.js';
 export let eagleModel = null;
 
 // ─────────────────────────────────────────────
+// MUSEUM FURNITURE MATERIALS
+// ─────────────────────────────────────────────
+const benchWoodMat = new THREE.MeshStandardMaterial({
+  color: 0x2a1810,
+  roughness: 0.7,
+  metalness: 0.1
+});
+
+const benchLeatherMat = new THREE.MeshStandardMaterial({
+  color: 0x1a0a0a,
+  roughness: 0.5,
+  metalness: 0.0
+});
+
+const ropeMat = new THREE.MeshStandardMaterial({
+  color: 0x8b0000,
+  roughness: 0.8,
+  metalness: 0.1
+});
+
+const postMat = new THREE.MeshStandardMaterial({
+  color: 0xd4af37,
+  roughness: 0.3,
+  metalness: 0.8
+});
+
+// ─────────────────────────────────────────────
+// CREATE MUSEUM BENCH
+// ─────────────────────────────────────────────
+function createBench(x, y, z, rotationY = 0) {
+  const bench = new THREE.Group();
+  
+  // Seat
+  const seat = new THREE.Mesh(
+    new THREE.BoxGeometry(2.5, 0.15, 0.8),
+    benchLeatherMat
+  );
+  seat.position.set(0, 0.5, 0);
+  seat.castShadow = true;
+  seat.receiveShadow = true;
+  bench.add(seat);
+  
+  // Seat frame
+  const seatFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(2.6, 0.08, 0.85),
+    benchWoodMat
+  );
+  seatFrame.position.set(0, 0.42, 0);
+  seatFrame.castShadow = true;
+  bench.add(seatFrame);
+  
+  // Legs
+  const legGeo = new THREE.BoxGeometry(0.12, 0.42, 0.12);
+  const legPositions = [
+    [-1.1, 0.21, 0.3], [-1.1, 0.21, -0.3],
+    [1.1, 0.21, 0.3], [1.1, 0.21, -0.3]
+  ];
+  legPositions.forEach(pos => {
+    const leg = new THREE.Mesh(legGeo, benchWoodMat);
+    leg.position.set(...pos);
+    leg.castShadow = true;
+    bench.add(leg);
+  });
+  
+  // Cross support
+  const support = new THREE.Mesh(
+    new THREE.BoxGeometry(2.2, 0.06, 0.06),
+    benchWoodMat
+  );
+  support.position.set(0, 0.15, 0);
+  bench.add(support);
+  
+  bench.position.set(x, y, z);
+  bench.rotation.y = rotationY;
+  scene.add(bench);
+  
+  return bench;
+}
+
+// ─────────────────────────────────────────────
+// CREATE ROPE BARRIER
+// ─────────────────────────────────────────────
+function createRopeBarrier(x, y, z, length = 4, rotationY = 0) {
+  const barrier = new THREE.Group();
+  
+  // Posts at each end
+  const postGeo = new THREE.CylinderGeometry(0.04, 0.05, 0.9, 12);
+  const baseGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.08, 12);
+  const topGeo = new THREE.SphereGeometry(0.06, 12, 8);
+  
+  // Left post
+  const leftPost = new THREE.Mesh(postGeo, postMat);
+  leftPost.position.set(-length / 2, 0.45, 0);
+  leftPost.castShadow = true;
+  barrier.add(leftPost);
+  
+  const leftBase = new THREE.Mesh(baseGeo, postMat);
+  leftBase.position.set(-length / 2, 0.04, 0);
+  leftBase.castShadow = true;
+  barrier.add(leftBase);
+  
+  const leftTop = new THREE.Mesh(topGeo, postMat);
+  leftTop.position.set(-length / 2, 0.95, 0);
+  leftTop.castShadow = true;
+  barrier.add(leftTop);
+  
+  // Right post
+  const rightPost = new THREE.Mesh(postGeo, postMat);
+  rightPost.position.set(length / 2, 0.45, 0);
+  rightPost.castShadow = true;
+  barrier.add(rightPost);
+  
+  const rightBase = new THREE.Mesh(baseGeo, postMat);
+  rightBase.position.set(length / 2, 0.04, 0);
+  rightBase.castShadow = true;
+  barrier.add(rightBase);
+  
+  const rightTop = new THREE.Mesh(topGeo, postMat);
+  rightTop.position.set(length / 2, 0.95, 0);
+  rightTop.castShadow = true;
+  barrier.add(rightTop);
+  
+  // Rope - curved catenary shape
+  const ropePoints = [];
+  const segments = 20;
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const xPos = -length / 2 + length * t;
+    // Catenary curve: lowest in middle
+    const sag = 0.15;
+    const yPos = 0.75 - sag * Math.sin(Math.PI * t);
+    ropePoints.push(new THREE.Vector3(xPos, yPos, 0));
+  }
+  
+  const ropeCurve = new THREE.CatmullRomCurve3(ropePoints);
+  const ropeGeo = new THREE.TubeGeometry(ropeCurve, 20, 0.02, 8, false);
+  const rope = new THREE.Mesh(ropeGeo, ropeMat);
+  rope.castShadow = true;
+  barrier.add(rope);
+  
+  barrier.position.set(x, y, z);
+  barrier.rotation.y = rotationY;
+  scene.add(barrier);
+  
+  return barrier;
+}
+
+// ─────────────────────────────────────────────
 // ROOM BUILDER FUNCTION
 // facing: 'right' = entrance faces +X, 'left' = entrance faces -X
 // ─────────────────────────────────────────────
@@ -30,6 +178,7 @@ export function buildRoom(name, x, z, facing = 'front') {
   const floor = new THREE.Mesh(floorGeo, floorMat);
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(x, 0, z);
+  floor.receiveShadow = true;
   scene.add(floor);
 
   // Ceiling
@@ -120,6 +269,22 @@ export function buildRoom(name, x, z, facing = 'front') {
     // Room label
     createRoomLabel(name, x, wallHeight - 0.6, z - roomSize / 2 + 0.2, 0);
   }
+  
+  // Add furniture based on room orientation
+  if (facing === 'right') {
+    // Bench in center of room, facing the portraits
+    createBench(x, 0, z, -Math.PI / 2);
+    
+    // Horizontal rope barrier along the portrait wall
+    createRopeBarrier(x - 4, 0, z, 8, Math.PI / 2);
+    
+  } else if (facing === 'left') {
+    // Bench in center of room, facing the portraits
+    createBench(x, 0, z, Math.PI / 2);
+    
+    // Horizontal rope barrier along the portrait wall
+    createRopeBarrier(x + 4, 0, z, 8, Math.PI / 2);
+  }
 }
 
 // Helper function to create room labels
@@ -163,6 +328,7 @@ export function buildCentralHallway() {
   );
   hallwayFloor.rotation.x = -Math.PI / 2;
   hallwayFloor.position.set(0, 0.01, -14);
+  hallwayFloor.receiveShadow = true;
   scene.add(hallwayFloor);
 
   // Decorative red carpet/runner
@@ -176,6 +342,7 @@ export function buildCentralHallway() {
   );
   carpet.rotation.x = -Math.PI / 2;
   carpet.position.set(0, 0.02, -14);
+  carpet.receiveShadow = true;
   scene.add(carpet);
 
   // Carpet border lines (gold)
@@ -213,6 +380,8 @@ export function buildEagleMonument() {
     pedestalMat
   );
   pedestalBase.position.set(0, 0.25, -14);
+  pedestalBase.castShadow = true;
+  pedestalBase.receiveShadow = true;
   scene.add(pedestalBase);
 
   // Pedestal column
@@ -221,6 +390,8 @@ export function buildEagleMonument() {
     pedestalMat
   );
   pedestalColumn.position.set(0, 1.75, -14);
+  pedestalColumn.castShadow = true;
+  pedestalColumn.receiveShadow = true;
   scene.add(pedestalColumn);
 
   // Pedestal top
@@ -229,6 +400,8 @@ export function buildEagleMonument() {
     pedestalMat
   );
   pedestalTop.position.set(0, 3.15, -14);
+  pedestalTop.castShadow = true;
+  pedestalTop.receiveShadow = true;
   scene.add(pedestalTop);
 
   // Load Albanian Double-Headed Eagle 3D Model
@@ -292,6 +465,12 @@ export function buildEagleMonument() {
   const pedastalLight2 = new THREE.PointLight(0xff0000, 0.5, 5);
   pedastalLight2.position.set(-2, 0.5, -14);
   scene.add(pedastalLight2);
+  
+  // Rope barrier around the eagle monument
+  createRopeBarrier(-2, 0, -12, 4, 0);      // Front
+  createRopeBarrier(-2, 0, -16, 4, 0);      // Back
+  createRopeBarrier(-2.5, 0, -14, 3.5, Math.PI / 2); // Left
+  createRopeBarrier(2.5, 0, -14, 3.5, Math.PI / 2);  // Right
 }
 
 // ─────────────────────────────────────────────

@@ -3,7 +3,7 @@
  */
 
 import * as THREE from 'three';
-import { scene, camera, controls, renderer } from './scene.js';
+import { scene, camera, controls, renderer, composer } from './scene.js';
 import { exhibits } from './portraits.js';
 import { eagleModel } from './rooms.js';
 import { stopLoaderAnimation } from './loader.js';
@@ -321,7 +321,7 @@ function animate() {
   updateNavigation();
 
   controls.update();
-  renderer.render(scene, camera);
+  composer.render(); // Use post-processing composer
 }
 
 // ─────────────────────────────────────────────
