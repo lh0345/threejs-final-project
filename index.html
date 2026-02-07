@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Albanian Hall of Legacy</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <canvas id="loading-eagle-canvas" class="loading-eagle"></canvas>
+    <div class="loading-text">ALBANIAN HALL OF LEGACY</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar"></div>
+    </div>
+  </div>
+
+  <!-- Title Bar -->
+  <div class="title-bar">
+    <div>
+      <h1>🦅 THE ALBANIAN HALL OF LEGACY <span class="subtitle">Virtual Museum</span></h1>
+    </div>
+    <div class="controls">
+      <button id="auto-tour-btn" class="control-btn">▶ Start Tour</button>
+      <button id="sound-btn" class="control-btn">🔇</button>
+    </div>
+  </div>
+
+  <!-- Portrait Counter -->
+  <div id="portrait-counter">
+    Portrait <span id="current-portrait">1</span> / <span id="total-portraits">24</span>
+  </div>
+
+  <!-- Background Audio -->
+  <audio id="ambient-audio" loop>
+    <source src="audio/background-music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Room Navigation -->
+  <div class="room-nav">
+    <button class="room-btn active" data-room="entrance"><span>🏛️</span> Entrance Hall</button>
+    <button class="room-btn" data-room="historical"><span>⚔️</span> Historical Figures</button>
+    <button class="room-btn" data-room="scientists"><span>🔬</span> Scientists & Thinkers</button>
+    <button class="room-btn" data-room="actors"><span>🎬</span> Actors</button>
+    <button class="room-btn" data-room="international"><span>🌍</span> International Contributors</button>
+    <button class="room-btn" data-room="singers"><span>🎤</span> Singers</button>
+    <button class="room-btn" data-room="events"><span>📜</span> Historical Events</button>
+  </div>
+
+  <!-- Info Panel -->
+  <div id="info"></div>
+
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <!-- Loader Animation (runs immediately) -->
+  <script type="module" src="js/loader.js"></script>
+  
+  <!-- Main Application -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
