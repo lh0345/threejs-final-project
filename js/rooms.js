@@ -158,6 +158,142 @@ function createRopeBarrier(x, y, z, length = 4, rotationY = 0) {
 }
 
 // ─────────────────────────────────────────────
+// CREATE CHANDELIER
+// ─────────────────────────────────────────────
+function createChandelier(x, y, z) {
+  const chandelier = new THREE.Group();
+  
+  // Materials
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37,
+    roughness: 0.3,
+    metalness: 0.8
+  });
+  
+  const crystalMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.1,
+    metalness: 0.2,
+    transparent: true,
+    opacity: 0.7
+  });
+  
+  const bulbMat = new THREE.MeshStandardMaterial({
+    color: 0xffffee,
+    emissive: 0xffaa44,
+    emissiveIntensity: 0.8
+  });
+  
+  // Ceiling mount
+  const mount = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.15, 0.2, 0.15, 12),
+    goldMat
+  );
+  mount.position.set(0, 0, 0);
+  mount.castShadow = true;
+  chandelier.add(mount);
+  
+  // Chain/rod
+  const chain = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, 0.8, 8),
+    goldMat
+  );
+  chain.position.set(0, -0.5, 0);
+  chandelier.add(chain);
+  
+  // Main body (decorative ring)
+  const mainRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.6, 0.05, 8, 24),
+    goldMat
+  );
+  mainRing.rotation.x = Math.PI / 2;
+  mainRing.position.set(0, -1, 0);
+  mainRing.castShadow = true;
+  chandelier.add(mainRing);
+  
+  // Inner ring
+  const innerRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.35, 0.03, 8, 16),
+    goldMat
+  );
+  innerRing.rotation.x = Math.PI / 2;
+  innerRing.position.set(0, -1.1, 0);
+  chandelier.add(innerRing);
+  
+  // Center ornament
+  const centerBall = new THREE.Mesh(
+    new THREE.SphereGeometry(0.12, 12, 8),
+    goldMat
+  );
+  centerBall.position.set(0, -1.3, 0);
+  centerBall.castShadow = true;
+  chandelier.add(centerBall);
+  
+  // Arms and lights (6 around the ring)
+  const numArms = 6;
+  for (let i = 0; i < numArms; i++) {
+    const angle = (i / numArms) * Math.PI * 2;
+    const armX = Math.cos(angle) * 0.6;
+    const armZ = Math.sin(angle) * 0.6;
+    
+    // Arm
+    const arm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, 0.25, 6),
+      goldMat
+    );
+    arm.position.set(armX, -1.12, armZ);
+    chandelier.add(arm);
+    
+    // Candle holder cup
+    const cup = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.04, 0.08, 8),
+      goldMat
+    );
+    cup.position.set(armX, -1.28, armZ);
+    chandelier.add(cup);
+    
+    // Light bulb (emissive)
+    const bulb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05, 8, 6),
+      bulbMat
+    );
+    bulb.position.set(armX, -1.22, armZ);
+    chandelier.add(bulb);
+  }
+  
+  // Crystal drops
+  const crystalPositions = [
+    [0.4, -1.25, 0], [-0.4, -1.25, 0],
+    [0, -1.25, 0.4], [0, -1.25, -0.4],
+    [0.28, -1.25, 0.28], [-0.28, -1.25, 0.28],
+    [0.28, -1.25, -0.28], [-0.28, -1.25, -0.28]
+  ];
+  
+  crystalPositions.forEach(pos => {
+    const crystal = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.04, 0),
+      crystalMat
+    );
+    crystal.position.set(...pos);
+    crystal.scale.y = 1.5;
+    chandelier.add(crystal);
+  });
+  
+  chandelier.position.set(x, y, z);
+  scene.add(chandelier);
+  
+  // Add point light for the chandelier
+  const chandelierLight = new THREE.PointLight(0xfff5e6, 1.5, 15);
+  chandelierLight.position.set(x, y - 1.5, z);
+  chandelierLight.castShadow = true;
+  chandelierLight.shadow.mapSize.width = 512;
+  chandelierLight.shadow.mapSize.height = 512;
+  scene.add(chandelierLight);
+  
+  return chandelier;
+}
+
+// ─────────────────────────────────────────────
 // ROOM BUILDER FUNCTION
 // facing: 'right' = entrance faces +X, 'left' = entrance faces -X
 // ─────────────────────────────────────────────
@@ -187,10 +323,8 @@ export function buildRoom(name, x, z, facing = 'front') {
   ceiling.position.set(x, wallHeight, z);
   scene.add(ceiling);
 
-  // Add a single room light for all portraits (performance optimization)
-  const roomLight = new THREE.PointLight(0xfff5e6, 1.2, 15);
-  roomLight.position.set(x, wallHeight - 1, z);
-  scene.add(roomLight);
+  // Add chandelier with light
+  createChandelier(x, wallHeight, z);
 
   if (facing === 'right') {
     // Room faces right (+X direction) - entrance on right side
