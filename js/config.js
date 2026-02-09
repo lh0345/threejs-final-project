@@ -100,6 +100,11 @@ export const CONFIG = {
       roughness: 0.6,
       metalness: 0.1
     },
+    ceiling: {
+      color: 0x0a0505,
+      roughness: 0.9,
+      metalness: 0.0
+    },
     benchWood: {
       color: 0x2a1810,
       roughness: 0.7,
@@ -155,7 +160,9 @@ export const CONFIG = {
     portraitFocusHeight: 1.5, // Height offset when focusing portrait
     portraitFocusSpeed: 0.05, // Speed of zoom to portrait
     roomOffsetDistance: 8, // Distance from room when viewing
-    roomViewHeight: 4 // Camera height when viewing room
+    roomViewHeight: 4, // Camera height when viewing room
+    lookAtHeight: 3, // Height to look at when viewing room
+    entranceDistance: 15 // Distance for entrance hall camera
   },
 
   // ═══════════════════════════════════════════

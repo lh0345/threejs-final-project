@@ -7,6 +7,7 @@
 
 import * as THREE from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { CONFIG } from './config.js';
 
 // ═══════════════════════════════════════════
 // Loading Progress Tracking
@@ -15,7 +16,7 @@ const loadingManager = {
   total: 0,
   loaded: 0,
   startTime: Date.now(),
-  minLoadTime: 1500, // Minimum time to show loading screen (ms)
+  minLoadTime: CONFIG.loading.minLoadTime, // Minimum time to show loading screen (ms)
 };
 
 const loadingBar = document.querySelector('.loading-bar');
@@ -102,7 +103,7 @@ const frontLight = new THREE.DirectionalLight(0xffffff, 1);
 frontLight.position.set(0, 2, 5);
 loaderScene.add(frontLight);
 
-const backLight = new THREE.DirectionalLight(0x8b0000, 0.5);
+const backLight = new THREE.DirectionalLight(CONFIG.materials.rope.color, 0.5);
 backLight.position.set(0, -2, -5);
 loaderScene.add(backLight);
 
@@ -119,9 +120,9 @@ stlLoader.load(
     geometry.center();
     
     const material = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      roughness: 0.3,
-      metalness: 0.8,
+      color: CONFIG.loading.eagleColor,
+      roughness: CONFIG.loading.eagleRoughness,
+      metalness: CONFIG.loading.eagleMetalness,
       side: THREE.DoubleSide
     });
     
@@ -156,8 +157,8 @@ stlLoader.load(
     try {
       const fallbackGeom = new THREE.BoxGeometry(1.5, 1.5, 0.2);
       const fallbackMat = new THREE.MeshStandardMaterial({ 
-        color: 0x111111, 
-        metalness: 0.8 
+        color: CONFIG.loading.eagleColor, 
+        metalness: CONFIG.loading.eagleMetalness 
       });
       loaderEagle = new THREE.Mesh(fallbackGeom, fallbackMat);
       loaderScene.add(loaderEagle);
@@ -178,7 +179,7 @@ function animateLoader() {
   loaderAnimationId = requestAnimationFrame(animateLoader);
   
   if (loaderEagle) {
-    loaderEagle.rotation.y += 0.02;
+    loaderEagle.rotation.y += CONFIG.loading.rotationSpeed;
   }
   
   loaderRenderer.render(loaderScene, loaderCamera);

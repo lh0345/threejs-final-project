@@ -11,6 +11,7 @@ import { exhibits } from './portraits.js';
 import { eagleModel } from './rooms.js';
 import { stopLoaderAnimation } from './loader.js';
 import { updateNavigation, cancelNavigation, initRoomNavigation, navigateToRoom, roomPositions, isNavigating } from './navigation.js';
+import { CONFIG } from './config.js';
 
 // State
 let focusTarget = null;
@@ -200,7 +201,7 @@ let audioLoadFailed = false;
 // Configure audio with error handling
 if (ambientAudio) {
   try {
-    ambientAudio.volume = 0.2;
+    ambientAudio.volume = CONFIG.audio.defaultVolume;
     
     // Handle audio loading errors
     ambientAudio.addEventListener('error', (e) => {
@@ -332,7 +333,7 @@ if (tourBtn) {
         }
         
         showNextPortrait();
-        tourInterval = setInterval(showNextPortrait, 4000);
+        tourInterval = setInterval(showNextPortrait, CONFIG.tour.intervalDuration);
       }
     } catch (error) {
       logError('Tour button click', error);
@@ -449,7 +450,7 @@ function animate() {
 
     // Rotate the eagle model
     if (eagleModel) {
-      eagleModel.rotation.y += 0.005;
+      eagleModel.rotation.y += CONFIG.eagle.rotationSpeed;
     }
 
     // Check if room navigation just completed - focus pending portrait

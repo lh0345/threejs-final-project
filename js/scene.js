@@ -12,6 +12,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+import { CONFIG } from './config.js';
 
 // ═══════════════════════════════════════════
 // SCENE
@@ -22,10 +23,10 @@ import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
  * @exports
  */
 export const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0505);
+scene.background = new THREE.Color(CONFIG.scene.backgroundColor);
 
 // FOG FOR DEPTH - Dark Albanian theme
-scene.fog = new THREE.Fog(0x0a0505, 12, 45);
+scene.fog = new THREE.Fog(CONFIG.scene.fog.color, CONFIG.scene.fog.near, CONFIG.scene.fog.far);
 
 // ═══════════════════════════════════════════
 // CAMERA
@@ -35,8 +36,8 @@ scene.fog = new THREE.Fog(0x0a0505, 12, 45);
  * @type {THREE.PerspectiveCamera}
  * @exports
  */
-export const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 4, 22);
+export const camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, window.innerWidth / window.innerHeight, CONFIG.camera.near, CONFIG.camera.far);
+camera.position.set(CONFIG.camera.initialPosition.x, CONFIG.camera.initialPosition.y, CONFIG.camera.initialPosition.z);
 
 // ═══════════════════════════════════════════
 // RENDERER WITH SHADOWS
@@ -46,15 +47,15 @@ camera.position.set(0, 4, 22);
  * @type {THREE.WebGLRenderer}
  * @exports
  */
-export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+export const renderer = new THREE.WebGLRenderer({ antialias: CONFIG.renderer.antialias, powerPreference: CONFIG.renderer.powerPreference });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.renderer.maxPixelRatio));
 
 // Enable shadow mapping
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = CONFIG.renderer.shadowMapEnabled;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.4;
+renderer.toneMappingExposure = CONFIG.renderer.toneMappingExposure;
 
 document.body.appendChild(renderer.domElement);
 
@@ -75,9 +76,9 @@ composer.addPass(renderPass);
 // Bloom pass - subtle glow on lights
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.4,    // strength
-  0.4,    // radius
-  0.85    // threshold
+  CONFIG.postProcessing.bloom.strength,
+  CONFIG.postProcessing.bloom.radius,
+  CONFIG.postProcessing.bloom.threshold
 );
 composer.addPass(bloomPass);
 
@@ -94,9 +95,9 @@ composer.addPass(smaaPass);
  * @exports
  */
 export const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.target.set(0, 3, 3); // Look into the museum from entrance
+controls.enableDamping = CONFIG.controls.enableDamping;
+controls.dampingFactor = CONFIG.controls.dampingFactor;
+controls.target.set(CONFIG.controls.initialTarget.x, CONFIG.controls.initialTarget.y, CONFIG.controls.initialTarget.z); // Look into the museum from entrance
 
 // ═══════════════════════════════════════════
 // MATERIALS - Albanian dark theme
@@ -106,36 +107,36 @@ controls.target.set(0, 3, 3); // Look into the museum from entrance
  * @type {THREE.MeshStandardMaterial}
  * @exports
  */
-export const floorMat = new THREE.MeshStandardMaterial({ color: 0x120808, roughness: 0.85 });
+export const floorMat = new THREE.MeshStandardMaterial({ color: CONFIG.materials.floor.color, roughness: CONFIG.materials.floor.roughness });
 
 /**
  * Default wall material
  * @type {THREE.MeshStandardMaterial}
  * @exports
  */
-export const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a0d0d, roughness: 0.6, metalness: 0.1 });
+export const wallMat = new THREE.MeshStandardMaterial({ color: CONFIG.materials.wall.color, roughness: CONFIG.materials.wall.roughness, metalness: CONFIG.materials.wall.metalness });
 
 // ─────────────────────────────────────────────
 // LIGHTING WITH SHADOWS
 // ─────────────────────────────────────────────
 
 // Ambient light (increased for better visibility)
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(CONFIG.lighting.ambient.color, CONFIG.lighting.ambient.intensity);
 scene.add(ambientLight);
 
 // Main directional light with shadows (increased intensity)
-const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
-mainLight.position.set(5, 15, 5);
-mainLight.castShadow = true;
-mainLight.shadow.mapSize.width = 2048;
-mainLight.shadow.mapSize.height = 2048;
+const mainLight = new THREE.DirectionalLight(CONFIG.lighting.main.color, CONFIG.lighting.main.intensity);
+mainLight.position.set(CONFIG.lighting.main.position.x, CONFIG.lighting.main.position.y, CONFIG.lighting.main.position.z);
+mainLight.castShadow = CONFIG.lighting.main.castShadow;
+mainLight.shadow.mapSize.width = CONFIG.lighting.main.shadowMapSize;
+mainLight.shadow.mapSize.height = CONFIG.lighting.main.shadowMapSize;
 mainLight.shadow.camera.near = 0.5;
 mainLight.shadow.camera.far = 50;
 mainLight.shadow.camera.left = -30;
 mainLight.shadow.camera.right = 30;
 mainLight.shadow.camera.top = 30;
 mainLight.shadow.camera.bottom = -30;
-mainLight.shadow.bias = -0.0001;
+mainLight.shadow.bias = CONFIG.lighting.main.shadowBias;
 scene.add(mainLight);
 
 // Albanian Red accent lights (increased for atmosphere)

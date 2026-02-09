@@ -7,6 +7,7 @@
 
 import * as THREE from 'three';
 import { camera, controls } from './scene.js';
+import { CONFIG } from './config.js';
 
 /**
  * Room positions and configurations
@@ -57,25 +58,25 @@ export function navigateToRoom(roomId, clearFocusCallback) {
   // Calculate camera position based on room facing
   let cameraX, cameraZ, lookAtZ;
   if (roomPos.facing === 'right') {
-    cameraX = roomPos.x + 8;
+    cameraX = roomPos.x + CONFIG.navigation.roomOffsetDistance;
     cameraZ = roomPos.z;
     lookAtZ = roomPos.z;
   } else if (roomPos.facing === 'left') {
-    cameraX = roomPos.x - 8;
+    cameraX = roomPos.x - CONFIG.navigation.roomOffsetDistance;
     cameraZ = roomPos.z;
     lookAtZ = roomPos.z;
   } else {
     // Front facing (entrance hall)
     cameraX = roomPos.x;
-    cameraZ = roomPos.z + 15;
-    lookAtZ = roomPos.z - 15;
+    cameraZ = roomPos.z + CONFIG.navigation.entranceDistance;
+    lookAtZ = roomPos.z - CONFIG.navigation.entranceDistance;
   }
   
   // Store start and end positions
   navStartPos = camera.position.clone();
   navStartTarget = controls.target.clone();
-  navEndPos = new THREE.Vector3(cameraX, 4, cameraZ);
-  navEndTarget = new THREE.Vector3(roomPos.x, 3, lookAtZ);
+  navEndPos = new THREE.Vector3(cameraX, CONFIG.navigation.roomViewHeight, cameraZ);
+  navEndTarget = new THREE.Vector3(roomPos.x, CONFIG.navigation.lookAtHeight, lookAtZ);
   
   // Check if crossing sides
   navCrossingSides = (navStartPos.x < 0 && navEndPos.x > 0) || (navStartPos.x > 0 && navEndPos.x < 0);
@@ -116,7 +117,7 @@ export function updateNavigation() {
     // When crossing sides, go through the center hallway
     const midX = 0;
     const midZ = (navStartPos.z + navEndPos.z) / 2;
-    const midPoint = new THREE.Vector3(midX, 4, midZ);
+    const midPoint = new THREE.Vector3(midX, CONFIG.navigation.roomViewHeight, midZ);
     
     if (t < 0.5) {
       // First half: move to center
@@ -124,13 +125,13 @@ export function updateNavigation() {
       camera.position.lerpVectors(navStartPos, midPoint, t2);
       // Look toward center first, then toward destination
       const lookX = navStartTarget.x * (1 - t2);
-      controls.target.set(lookX, 3, midZ);
+      controls.target.set(lookX, CONFIG.navigation.lookAtHeight, midZ);
     } else {
       // Second half: move to destination
       const t2 = (t - 0.5) * 2;
       camera.position.lerpVectors(midPoint, navEndPos, t2);
       controls.target.lerpVectors(
-        new THREE.Vector3(0, 3, midZ),
+        new THREE.Vector3(0, CONFIG.navigation.lookAtHeight, midZ),
         navEndTarget,
         t2
       );

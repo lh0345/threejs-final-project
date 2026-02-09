@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { scene, floorMat, wallMat } from './scene.js';
 import { registerAsset } from './loader.js';
+import { CONFIG } from './config.js';
 
 // Exported eagle model for rotation animation
 export let eagleModel = null;
@@ -17,27 +18,27 @@ export let eagleModel = null;
 // MUSEUM FURNITURE MATERIALS
 // ─────────────────────────────────────────────
 const benchWoodMat = new THREE.MeshStandardMaterial({
-  color: 0x2a1810,
-  roughness: 0.7,
-  metalness: 0.1
+  color: CONFIG.materials.benchWood.color,
+  roughness: CONFIG.materials.benchWood.roughness,
+  metalness: CONFIG.materials.benchWood.metalness
 });
 
 const benchLeatherMat = new THREE.MeshStandardMaterial({
-  color: 0x1a0a0a,
-  roughness: 0.5,
-  metalness: 0.0
+  color: CONFIG.materials.benchLeather.color,
+  roughness: CONFIG.materials.benchLeather.roughness,
+  metalness: CONFIG.materials.benchLeather.metalness
 });
 
 const ropeMat = new THREE.MeshStandardMaterial({
-  color: 0x8b0000,
-  roughness: 0.8,
-  metalness: 0.1
+  color: CONFIG.materials.rope.color,
+  roughness: CONFIG.materials.rope.roughness,
+  metalness: CONFIG.materials.rope.metalness
 });
 
 const postMat = new THREE.MeshStandardMaterial({
-  color: 0xd4af37,
-  roughness: 0.3,
-  metalness: 0.8
+  color: CONFIG.materials.post.color,
+  roughness: CONFIG.materials.post.roughness,
+  metalness: CONFIG.materials.post.metalness
 });
 
 // ─────────────────────────────────────────────
@@ -302,14 +303,14 @@ function createChandelier(x, y, z) {
 // facing: 'right' = entrance faces +X, 'left' = entrance faces -X
 // ─────────────────────────────────────────────
 export function buildRoom(name, x, z, facing = 'front') {
-  const roomSize = 12;
-  const wallHeight = 8;
-  const wallThickness = 0.2;
+  const roomSize = CONFIG.room.depth;
+  const wallHeight = CONFIG.room.wallHeight;
+  const wallThickness = CONFIG.room.wallThickness;
 
   // Ceiling material
   const ceilingMat = new THREE.MeshStandardMaterial({ 
-    color: 0x0a0505, 
-    roughness: 0.9,
+    color: CONFIG.materials.ceiling.color, 
+    roughness: CONFIG.materials.ceiling.roughness,
     side: THREE.DoubleSide
   });
 
@@ -454,9 +455,9 @@ function createRoomLabel(name, x, y, z, rotationY) {
 // ─────────────────────────────────────────────
 export function buildCentralHallway() {
   const hallwayMat = new THREE.MeshStandardMaterial({ 
-    color: 0x1a0a0a, 
-    roughness: 0.7,
-    metalness: 0.1 
+    color: CONFIG.materials.benchLeather.color, 
+    roughness: CONFIG.materials.wall.roughness,
+    metalness: CONFIG.materials.wall.metalness 
   });
 
   // Main hallway floor
@@ -471,8 +472,8 @@ export function buildCentralHallway() {
 
   // Decorative red carpet/runner
   const carpetMat = new THREE.MeshStandardMaterial({ 
-    color: 0x8b0000, 
-    roughness: 0.9 
+    color: CONFIG.materials.rope.color, 
+    roughness: CONFIG.materials.ceiling.roughness 
   });
   const carpet = new THREE.Mesh(
     new THREE.PlaneGeometry(3, 48),
@@ -484,7 +485,7 @@ export function buildCentralHallway() {
   scene.add(carpet);
 
   // Carpet border lines (gold)
-  const borderMat = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
+  const borderMat = new THREE.MeshStandardMaterial({ color: CONFIG.materials.post.color });
   const leftBorder = new THREE.Mesh(
     new THREE.PlaneGeometry(0.15, 48),
     borderMat
@@ -553,9 +554,9 @@ export function buildEagleMonument() {
       
       // Create material for the eagle
       const eagleMaterial = new THREE.MeshStandardMaterial({
-        color: 0x111111,
-        roughness: 0.3,
-        metalness: 0.8,
+        color: CONFIG.loading.eagleColor,
+        roughness: CONFIG.loading.eagleRoughness,
+        metalness: CONFIG.loading.eagleMetalness,
         side: THREE.DoubleSide
       });
       
@@ -590,7 +591,7 @@ export function buildEagleMonument() {
       // Fallback to simple placeholder if model fails to load
       try {
         const fallbackGeom = new THREE.BoxGeometry(2, 2, 0.2);
-        const fallbackMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        const fallbackMat = new THREE.MeshStandardMaterial({ color: CONFIG.loading.eagleColor });
         eagleModel = new THREE.Mesh(fallbackGeom, fallbackMat);
         eagleModel.position.set(0, 5.5, -14);
         scene.add(eagleModel);
@@ -631,15 +632,15 @@ export function buildEagleMonument() {
 // ─────────────────────────────────────────────
 export function buildEntranceHall() {
   const hallwayMat = new THREE.MeshStandardMaterial({ 
-    color: 0x1a0a0a, 
-    roughness: 0.7,
-    metalness: 0.1 
+    color: CONFIG.materials.benchLeather.color, 
+    roughness: CONFIG.materials.wall.roughness,
+    metalness: CONFIG.materials.wall.metalness 
   });
   const carpetMat = new THREE.MeshStandardMaterial({ 
-    color: 0x8b0000, 
-    roughness: 0.9 
+    color: CONFIG.materials.rope.color, 
+    roughness: CONFIG.materials.ceiling.roughness 
   });
-  const borderMat = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
+  const borderMat = new THREE.MeshStandardMaterial({ color: CONFIG.materials.post.color });
 
   // Entrance hall floor
   const entranceFloor = new THREE.Mesh(
@@ -677,7 +678,7 @@ export function buildEntranceHall() {
   scene.add(entranceBorderRight);
 
   // Entrance walls
-  const entranceWallMat = new THREE.MeshStandardMaterial({ color: 0x1a0a0a });
+  const entranceWallMat = new THREE.MeshStandardMaterial({ color: CONFIG.materials.benchLeather.color });
 
   const entranceLeftWall = new THREE.Mesh(
     new THREE.BoxGeometry(0.5, 8, 10),
@@ -696,7 +697,7 @@ export function buildEntranceHall() {
   // Entrance ceiling
   const entranceCeiling = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 15),
-    new THREE.MeshStandardMaterial({ color: 0x0a0505, side: THREE.DoubleSide })
+    new THREE.MeshStandardMaterial({ color: CONFIG.materials.ceiling.color, side: THREE.DoubleSide })
   );
   entranceCeiling.rotation.x = Math.PI / 2;
   entranceCeiling.position.set(0, 7.5, 18);
