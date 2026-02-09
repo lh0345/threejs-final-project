@@ -6,7 +6,7 @@ A stunning 3D virtual museum built with Three.js, celebrating Albanian heritage,
 
 This interactive web application showcases Albanian history through an immersive virtual museum experience with:
 - 24 portraits of historical figures, scientists, artists, and international contributors
-- 7 themed exhibition rooms
+- 6 themed exhibition rooms
 - Smooth navigation and auto-tour functionality
 - Atmospheric lighting and post-processing effects
 - Comprehensive error handling and loading system
