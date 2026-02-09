@@ -2,7 +2,7 @@
  * LOADER.JS - 3D Eagle loading animation with progress tracking
  * 
  * @module loader
- * @description Handles the loading screen animation and progress tracking for assets
+ * @description Loading screen animation and progress tracking
  */
 
 import * as THREE from 'three';
@@ -24,7 +24,7 @@ const loadingScreen = document.getElementById('loading-screen');
 
 /**
  * Updates the loading progress bar
- * @param {number} progress - Progress value between 0 and 1
+ * @param {number} progress - Progress between 0 and 1
  */
 function updateLoadingProgress(progress) {
   if (loadingBar) {
@@ -34,7 +34,7 @@ function updateLoadingProgress(progress) {
 
 /**
  * Registers a new asset to be loaded
- * @returns {Function} Callback function to call when asset is loaded
+ * @returns {Function} Callback to call when asset is loaded
  */
 export function registerAsset() {
   loadingManager.total++;
@@ -52,7 +52,7 @@ export function registerAsset() {
 }
 
 /**
- * Checks if minimum load time has elapsed and hides loading screen
+ * Checks if minimum load time has elapsed
  */
 function checkLoadingComplete() {
   const elapsed = Date.now() - loadingManager.startTime;
@@ -64,7 +64,7 @@ function checkLoadingComplete() {
 }
 
 /**
- * Hides the loading screen with fade animation
+ * Hides the loading screen
  */
 function hideLoadingScreen() {
   if (loadingScreen) {
@@ -173,7 +173,7 @@ stlLoader.load(
 );
 
 /**
- * Animation loop for the loading screen eagle
+ * Animation loop for the loading screen
  */
 function animateLoader() {
   loaderAnimationId = requestAnimationFrame(animateLoader);
@@ -187,7 +187,6 @@ function animateLoader() {
 
 /**
  * Stops the loader animation and cleans up resources
- * Called when the loading screen is hidden
  */
 export function stopLoaderAnimation() {
   if (loaderAnimationId) {

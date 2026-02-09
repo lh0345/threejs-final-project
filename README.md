@@ -31,6 +31,7 @@ This interactive web application showcases Albanian history through an immersive
 - **3D Model Loading**: STL format Albanian eagle monument
 - **Smooth Animations**: Lerp-based camera movements
 - **Asset Loading**: Progress tracking for all resources
+- **Optimized Design**: Factory pattern for shared geometries & materials
 
 ## 🚀 Getting Started
 
@@ -59,7 +60,6 @@ This interactive web application showcases Albanian history through an immersive
 
 ## ⚙️ Architecture
 
-- **OOP Design**: Factory pattern for shared geometries & materials
 - **Centralized Config**: `config.js` - single source for all settings
 - **Optimized**: 3 shared geometries (was 96), material caching
 - **Post-processing**: Bloom, SMAA anti-aliasing, shadows, fog
@@ -72,7 +72,7 @@ This interactive web application showcases Albanian history through an immersive
 └── js/
     ├── config.js          # Centralized settings
     ├── scene.js           # Three.js setup
-    ├── portraits.js       # OOP portrait system
+    ├── portraits.js       # Portrait system
     ├── rooms.js           # Room builder
     ├── interactions.js    # Events & animations
     ├── navigation.js      # Camera navigation
@@ -91,5 +91,5 @@ This interactive web application showcases Albanian history through an immersive
 
 ---
 
-Built with Three.js v0.158.0 | OOP Architecture | Optimized Performance
+Built with Three.js v0.158.0 | Optimized Performance
 

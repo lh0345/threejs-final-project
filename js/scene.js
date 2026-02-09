@@ -2,8 +2,7 @@
  * SCENE.JS - Three.js Scene, Camera, Renderer, Controls & Lighting
  * 
  * @module scene
- * @description Core Three.js setup including scene, camera, renderer, post-processing, and lighting
- * All visual components are configured here and exported for use in other modules
+ * @description Core Three.js setup with scene, camera, renderer, post-processing, and lighting
  */
 
 import * as THREE from 'three';
@@ -18,7 +17,7 @@ import { CONFIG } from './config.js';
 // SCENE
 // ═══════════════════════════════════════════
 /**
- * Main Three.js scene containing all 3D objects
+ * Main Three.js scene
  * @type {THREE.Scene}
  * @exports
  */
@@ -32,7 +31,7 @@ scene.fog = new THREE.Fog(CONFIG.scene.fog.color, CONFIG.scene.fog.near, CONFIG.
 // CAMERA
 // ═══════════════════════════════════════════
 /**
- * Perspective camera for viewing the 3D scene
+ * Perspective camera
  * @type {THREE.PerspectiveCamera}
  * @exports
  */
@@ -43,7 +42,7 @@ camera.position.set(CONFIG.camera.initialPosition.x, CONFIG.camera.initialPositi
 // RENDERER WITH SHADOWS
 // ═══════════════════════════════════════════
 /**
- * WebGL renderer with shadow mapping and tone mapping
+ * WebGL renderer with shadows and tone mapping
  * @type {THREE.WebGLRenderer}
  * @exports
  */
@@ -63,7 +62,7 @@ document.body.appendChild(renderer.domElement);
 // POST-PROCESSING
 // ═══════════════════════════════════════════
 /**
- * Effect composer for post-processing passes (bloom, anti-aliasing)
+ * Effect composer for post-processing
  * @type {EffectComposer}
  * @exports
  */
@@ -90,7 +89,7 @@ composer.addPass(smaaPass);
 // CONTROLS
 // ═══════════════════════════════════════════
 /**
- * Orbit controls for camera movement
+ * Orbit controls
  * @type {OrbitControls}
  * @exports
  */

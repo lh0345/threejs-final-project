@@ -1,8 +1,7 @@
 /**
- * CONFIG.JS - Centralized configuration for the Albanian Hall of Legacy
+ * CONFIG.JS - Centralized configuration
  * 
- * All configurable parameters in one place for easy customization.
- * Modify these values to change the museum's appearance and behavior.
+ * All configurable parameters for the museum
  */
 
 export const CONFIG = {

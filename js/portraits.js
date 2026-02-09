@@ -2,7 +2,7 @@
  * PORTRAITS.JS - Portrait Creator, Portrait Data, Exhibits Array
  * 
  * @module portraits
- * @description OOP-based portrait and museum management system
+ * @description Portrait and museum management system
  * Contains all portrait data for Albanian historical figures and celebrities
  */
 
@@ -29,8 +29,7 @@ const CANVAS_HEIGHT = 340;
 const PORTRAIT_Y = CONFIG.portrait.heightFromFloor + CONFIG.portrait.height / 2;
 
 /**
- * Factory class for creating shared geometries and resources
- * Prevents recreation of identical geometries/materials
+ * Creates shared geometries and materials to prevent recreation
  */
 class PortraitFactory {
   constructor() {
@@ -45,9 +44,7 @@ class PortraitFactory {
     this.materialCache = new Map();
   }
   
-  /**
-   * Get or create material for a specific color
-   */
+  // Get or create material for a specific color
   getFrameMaterial(color) {
     if (!this.materialCache.has(color)) {
       this.materialCache.set(color, new THREE.MeshStandardMaterial({ 
@@ -59,9 +56,7 @@ class PortraitFactory {
     return this.materialCache.get(color);
   }
   
-  /**
-   * Draw silhouette placeholder on canvas
-   */
+  // Draw silhouette placeholder on canvas
   drawSilhouette(ctx) {
     ctx.fillStyle = '#3a2020';
     ctx.beginPath();
@@ -73,9 +68,7 @@ class PortraitFactory {
     ctx.fillRect(108, 150, 40, 40);
   }
   
-  /**
-   * Create base canvas with gradient and nameplate
-   */
+  // Create base canvas with gradient and nameplate
   createBaseCanvas(name) {
     const canvas = document.createElement('canvas');
     canvas.width = CANVAS_WIDTH;
@@ -105,7 +98,7 @@ class PortraitFactory {
 }
 
 /**
- * Portrait class - encapsulates a single portrait
+ * Represents a single portrait with frame and canvas
  */
 class Portrait {
   constructor(name, data, factory) {
@@ -116,9 +109,7 @@ class Portrait {
     this.mesh = null;
   }
   
-  /**
-   * Calculate 3D position based on room layout
-   */
+  // Calculate 3D position based on room layout
   calculatePosition() {
     const spacing = ROOM_SIZE / 5;
     const offset = (this.data.position - 1.5) * spacing;
@@ -142,9 +133,7 @@ class Portrait {
     return { x, z, rotationY };
   }
   
-  /**
-   * Create the 3D frame structure
-   */
+  // Create the 3D frame structure
   createFrame() {
     this.group = new THREE.Group();
     const frameMat = this.factory.getFrameMaterial(this.data.frameColor);
@@ -167,9 +156,7 @@ class Portrait {
     this.group.add(rightFrame);
   }
   
-  /**
-   * Create the portrait canvas and texture
-   */
+  // Create the portrait canvas and texture
   createPortraitMesh() {
     const { canvas, ctx, gradient } = this.factory.createBaseCanvas(this.name);
     
@@ -195,9 +182,7 @@ class Portrait {
     };
   }
   
-  /**
-   * Load portrait image
-   */
+  // Load portrait image
   loadImage(ctx, gradient, texture) {
     if (!this.data.image) {
       this.factory.drawSilhouette(ctx);
@@ -251,9 +236,7 @@ class Portrait {
     img.src = this.data.image;
   }
   
-  /**
-   * Build and add to scene
-   */
+  // Build and add to scene
   build() {
     this.createFrame();
     this.createPortraitMesh();
@@ -271,7 +254,7 @@ class Portrait {
 }
 
 /**
- * MuseumRoom class - manages a room and its portraits
+ * Manages a room and its portraits
  */
 class MuseumRoom {
   constructor(name, x, z, facing, factory) {
@@ -283,17 +266,13 @@ class MuseumRoom {
     this.portraits = [];
   }
   
-  /**
-   * Add portrait to room
-   */
+  // Add portrait to room
   addPortrait(name, data) {
     const portrait = new Portrait(name, data, this.factory);
     this.portraits.push(portrait);
   }
   
-  /**
-   * Build room structure and all portraits
-   */
+  // Build room structure and all portraits
   build() {
     buildRoom(this.name, this.x, this.z, this.facing);
     this.portraits.forEach(portrait => portrait.build());
@@ -301,7 +280,7 @@ class MuseumRoom {
 }
 
 /**
- * Museum class - orchestrates entire museum
+ * Orchestrates entire museum construction
  */
 class Museum {
   constructor(portraitData) {
@@ -310,9 +289,7 @@ class Museum {
     this.loadPortraitData(portraitData);
   }
   
-  /**
-   * Load and organize portrait data into rooms
-   */
+  // Load and organize portrait data into rooms
   loadPortraitData(portraitData) {
     Object.entries(portraitData).forEach(([name, data]) => {
       const roomKey = `${data.room}_${data.x}_${data.z}_${data.facing}`;
@@ -331,9 +308,7 @@ class Museum {
     });
   }
   
-  /**
-   * Build entire museum
-   */
+  // Build entire museum
   build() {
     this.rooms.forEach(room => room.build());
   }
@@ -547,8 +522,7 @@ export const portraitData = {
 };
 
 /**
- * Builds all museum rooms with portraits using OOP architecture
- * Creates museum instance and builds everything efficiently
+ * Builds all museum rooms with portraits
  */
 export function buildAllPortraits() {
   const museum = new Museum(portraitData);

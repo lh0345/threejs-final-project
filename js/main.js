@@ -1,9 +1,8 @@
 /**
- * MAIN.JS - Entry point and museum content builder
+ * MAIN.JS - Entry point and museum builder
  * 
  * @module main
- * @description Builds all museum rooms, portraits, and initializes the application
- * This is the main entry point that constructs the entire virtual museum
+ * @description Builds all museum rooms, portraits, and initializes the app
  */
 
 import { stopLoaderAnimation } from './loader.js';

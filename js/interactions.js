@@ -2,7 +2,7 @@
  * INTERACTIONS.JS - Click handling, Auto Tour, Keyboard Events, Animation Loop
  * 
  * @module interactions
- * @description Manages all user interactions including clicks, keyboard, audio, and animations with comprehensive error handling
+ * @description Manages user interactions with clicks, keyboard, audio, and animations
  */
 
 import * as THREE from 'three';
@@ -37,7 +37,7 @@ const soundBtn = document.getElementById('sound-btn');
 // ═══════════════════════════════════════════
 
 /**
- * Safely logs errors without breaking the application
+ * Logs errors without breaking the application
  * @param {string} context - Context where error occurred
  * @param {Error} error - The error object
  */
@@ -47,7 +47,7 @@ function logError(context, error) {
 }
 
 /**
- * Safely updates DOM element text content
+ * Updates DOM element text content
  * @param {HTMLElement} element - DOM element to update
  * @param {string} content - Text content to set
  */
@@ -62,7 +62,7 @@ function safeSetContent(element, content) {
 }
 
 /**
- * Safely updates DOM element innerHTML
+ * Updates DOM element innerHTML
  * @param {HTMLElement} element - DOM element to update
  * @param {string} html - HTML content to set
  */
@@ -77,7 +77,7 @@ function safeSetHTML(element, html) {
 }
 
 /**
- * Safely toggles CSS classes
+ * Toggles CSS classes
  * @param {HTMLElement} element - DOM element to modify
  * @param {string} className - Class name to toggle
  * @param {boolean} add - True to add, false to remove
@@ -155,8 +155,8 @@ function clearFocusAndGoToRoom() {
 // ─────────────────────────────────────────────
 /**
  * Updates the info panel with portrait information
- * @param {THREE.Object3D} target - The portrait object to display info for
- * @param {boolean} showTourHint - Whether to show tour-related hints
+ * @param {THREE.Object3D} target - The portrait object
+ * @param {boolean} showTourHint - Whether to show tour hints
  */
 function updateInfoPanel(target, showTourHint = false) {
   try {
@@ -442,7 +442,6 @@ let animationFrameId = null;
 
 /**
  * Main animation loop
- * Handles eagle rotation, camera movement, and rendering
  */
 function animate() {
   try {
@@ -519,7 +518,7 @@ function animate() {
 }
 
 /**
- * Stops the animation loop (for cleanup)
+ * Stops the animation loop
  */
 export function stopAnimation() {
   if (animationFrameId) {
@@ -532,8 +531,7 @@ export function stopAnimation() {
 // INITIALIZATION WITH ERROR HANDLING
 // ─────────────────────────────────────────────
 /**
- * Initializes all interactions and starts the application
- * Called from main.js after all assets are created
+ * Initializes all interactions and starts the app
  */
 export function initInteractions() {
   try {

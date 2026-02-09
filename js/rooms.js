@@ -2,7 +2,7 @@
  * ROOMS.JS - Room Builder, Central Hallway, Entrance Hall, Eagle Monument
  * 
  * @module rooms
- * @description Creates museum rooms, monuments, and decorative elements with proper lighting and shadows
+ * @description Creates museum rooms, monuments, and decorative elements
  */
 
 import * as THREE from 'three';

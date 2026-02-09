@@ -2,7 +2,7 @@
  * NAVIGATION.JS - Room Navigation System
  * 
  * @module navigation
- * @description Handles smooth camera transitions between museum rooms with animation
+ * @description Smooth camera transitions between museum rooms
  */
 
 import * as THREE from 'three';
@@ -97,7 +97,7 @@ export function navigateToRoom(roomId, clearFocusCallback) {
 }
 
 /**
- * Update navigation animation - call in animation loop
+ * Update navigation animation
  */
 export function updateNavigation() {
   if (!isNavigating || !navigationTarget) return;
