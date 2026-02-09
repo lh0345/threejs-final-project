@@ -1,5 +1,8 @@
 /**
  * INTERACTIONS.JS - Click handling, Auto Tour, Keyboard Events, Animation Loop
+ * 
+ * @module interactions
+ * @description Manages all user interactions including clicks, keyboard, audio, and animations with comprehensive error handling
  */
 
 import * as THREE from 'three';
@@ -20,13 +23,77 @@ let pendingPortraitFocus = null; // For delayed portrait focus after room naviga
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// DOM elements
+// DOM elements with safety checks
 const infoEl = document.getElementById('info');
 const portraitCounterEl = document.getElementById('portrait-counter');
 const currentPortraitEl = document.getElementById('current-portrait');
 const tourBtn = document.getElementById('auto-tour-btn');
 const ambientAudio = document.getElementById('ambient-audio');
 const soundBtn = document.getElementById('sound-btn');
+
+// ═══════════════════════════════════════════
+// ERROR HANDLING
+// ═══════════════════════════════════════════
+
+/**
+ * Safely logs errors without breaking the application
+ * @param {string} context - Context where error occurred
+ * @param {Error} error - The error object
+ */
+function logError(context, error) {
+  console.error(`[${context}]`, error);
+  // Could send to analytics/monitoring service here
+}
+
+/**
+ * Safely updates DOM element text content
+ * @param {HTMLElement} element - DOM element to update
+ * @param {string} content - Text content to set
+ */
+function safeSetContent(element, content) {
+  try {
+    if (element) {
+      element.textContent = content;
+    }
+  } catch (error) {
+    logError('safeSetContent', error);
+  }
+}
+
+/**
+ * Safely updates DOM element innerHTML
+ * @param {HTMLElement} element - DOM element to update
+ * @param {string} html - HTML content to set
+ */
+function safeSetHTML(element, html) {
+  try {
+    if (element) {
+      element.innerHTML = html;
+    }
+  } catch (error) {
+    logError('safeSetHTML', error);
+  }
+}
+
+/**
+ * Safely toggles CSS classes
+ * @param {HTMLElement} element - DOM element to modify
+ * @param {string} className - Class name to toggle
+ * @param {boolean} add - True to add, false to remove
+ */
+function safeToggleClass(element, className, add) {
+  try {
+    if (element) {
+      if (add) {
+        element.classList.add(className);
+      } else {
+        element.classList.remove(className);
+      }
+    }
+  } catch (error) {
+    logError('safeToggleClass', error);
+  }
+}
 
 // ─────────────────────────────────────────────
 // HELPER: Get room ID from portrait position
@@ -51,14 +118,19 @@ function getRoomFromPortrait(portrait) {
 // HELPER: Clear Portrait Focus
 // ─────────────────────────────────────────────
 function clearFocus() {
-  if (isLocked) {
-    isLocked = false;
-    focusTarget = null;
-    controls.enableRotate = true;
-    controls.enablePan = true;
-    controls.enableZoom = true;
-    infoEl.style.display = 'none';
-    portraitCounterEl.style.display = 'none';
+  try {
+    if (isLocked) {
+      isLocked = false;
+      focusTarget = null;
+      controls.enableRotate = true;
+      controls.enablePan = true;
+      controls.enableZoom = true;
+      
+      if (infoEl) infoEl.style.display = 'none';
+      if (portraitCounterEl) portraitCounterEl.style.display = 'none';
+    }
+  } catch (error) {
+    logError('clearFocus', error);
   }
 }
 
@@ -80,263 +152,417 @@ function clearFocusAndGoToRoom() {
 // ─────────────────────────────────────────────
 // HELPER: Update Info Panel
 // ─────────────────────────────────────────────
+/**
+ * Updates the info panel with portrait information
+ * @param {THREE.Object3D} target - The portrait object to display info for
+ * @param {boolean} showTourHint - Whether to show tour-related hints
+ */
 function updateInfoPanel(target, showTourHint = false) {
-  let infoHtml = `<h3>${target.userData.label}</h3>`;
-  if (target.userData.years) {
-    infoHtml += `<div class="years">${target.userData.years}</div>`;
+  try {
+    if (!target || !target.userData) return;
+    
+    let infoHtml = `<h3>${target.userData.label || 'Unknown'}</h3>`;
+    
+    if (target.userData.years) {
+      infoHtml += `<div class="years">${target.userData.years}</div>`;
+    }
+    if (target.userData.description) {
+      infoHtml += `<div class="description">${target.userData.description}</div>`;
+    }
+    if (target.userData.achievement) {
+      infoHtml += `<div class="achievement">🏆 ${target.userData.achievement}</div>`;
+    }
+    if (target.userData.quote) {
+      infoHtml += `<div class="quote">${target.userData.quote}</div>`;
+    }
+    if (target.userData.wiki) {
+      infoHtml += `<a href="${target.userData.wiki}" target="_blank" rel="noopener noreferrer" class="wiki-link">📖 Learn More on Wikipedia</a>`;
+    }
+    
+    if (showTourHint) {
+      infoHtml += `<div class="close-hint">Auto Tour • Press ESC to exit</div>`;
+    } else {
+      infoHtml += `<div class="close-hint">Press ESC to exit • Arrow keys to navigate</div>`;
+    }
+    
+    safeSetHTML(infoEl, infoHtml);
+  } catch (error) {
+    logError('updateInfoPanel', error);
   }
-  if (target.userData.description) {
-    infoHtml += `<div class="description">${target.userData.description}</div>`;
-  }
-  if (target.userData.achievement) {
-    infoHtml += `<div class="achievement">🏆 ${target.userData.achievement}</div>`;
-  }
-  if (target.userData.quote) {
-    infoHtml += `<div class="quote">${target.userData.quote}</div>`;
-  }
-  if (target.userData.wiki) {
-    infoHtml += `<a href="${target.userData.wiki}" target="_blank" class="wiki-link">📖 Learn More on Wikipedia</a>`;
-  }
-  if (showTourHint) {
-    infoHtml += `<div class="close-hint">Auto Tour • Press ESC to exit</div>`;
-  } else {
-    infoHtml += `<div class="close-hint">Press ESC to exit • Arrow keys to navigate</div>`;
-  }
-  infoEl.innerHTML = infoHtml;
 }
 
 // ─────────────────────────────────────────────
-// AMBIENT SOUND SYSTEM
+// AMBIENT SOUND SYSTEM WITH ERROR HANDLING
 // ─────────────────────────────────────────────
 let isSoundPlaying = false;
-ambientAudio.volume = 0.2;
+let audioLoadFailed = false;
 
-soundBtn.addEventListener('click', () => {
-  if (isSoundPlaying) {
-    ambientAudio.pause();
-    soundBtn.textContent = '🔇';
-    soundBtn.classList.remove('playing');
-    isSoundPlaying = false;
-  } else {
-    ambientAudio.play().catch(e => console.log('Audio play failed:', e));
-    soundBtn.textContent = '🔊';
-    soundBtn.classList.add('playing');
-    isSoundPlaying = true;
-  }
-});
-
-// ─────────────────────────────────────────────
-// AUTO TOUR SYSTEM
-// ─────────────────────────────────────────────
-tourBtn.addEventListener('click', () => {
-  if (isTouring) {
-    // Stop tour
-    isTouring = false;
-    clearInterval(tourInterval);
-    tourBtn.textContent = '▶ Start Tour';
-    tourBtn.classList.remove('touring');
-  } else {
-    // Start tour
-    isTouring = true;
-    tourBtn.textContent = '⏹ Stop Tour';
-    tourBtn.classList.add('touring');
+// Configure audio with error handling
+if (ambientAudio) {
+  try {
+    ambientAudio.volume = 0.2;
     
-    currentPortraitIndex = 0;
-    
-    function showNextPortrait() {
-      if (!isTouring) return;
+    // Handle audio loading errors
+    ambientAudio.addEventListener('error', (e) => {
+      audioLoadFailed = true;
+      logError('Audio loading failed', e);
       
-      focusTarget = exhibits[currentPortraitIndex];
+      // Update UI to show audio unavailable
+      if (soundBtn) {
+        soundBtn.textContent = '🔇';
+        soundBtn.disabled = true;
+        soundBtn.title = 'Audio unavailable';
+      }
+    });
+    
+    // Handle successful audio load
+    ambientAudio.addEventListener('canplaythrough', () => {
+      console.log('Audio loaded successfully');
+    });
+  } catch (error) {
+    logError('Audio configuration', error);
+    audioLoadFailed = true;
+  }
+}
+
+// Sound button click handler with error handling
+if (soundBtn) {
+  soundBtn.addEventListener('click', () => {
+    try {
+      if (audioLoadFailed || !ambientAudio) {
+        console.warn('Audio is unavailable');
+        return;
+      }
+      
+      if (isSoundPlaying) {
+        ambientAudio.pause();
+        safeSetContent(soundBtn, '🔇');
+        safeToggleClass(soundBtn, 'playing', false);
+        isSoundPlaying = false;
+      } else {
+        // Play with promise handling for autoplay policies
+        const playPromise = ambientAudio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              safeSetContent(soundBtn, '🔊');
+              safeToggleClass(soundBtn, 'playing', true);
+              isSoundPlaying = true;
+            })
+            .catch(error => {
+              logError('Audio playback', error);
+              // Browser autoplay policy prevented playback
+              console.warn('Audio autoplay blocked. User interaction required.');
+            });
+        }
+      }
+    } catch (error) {
+      logError('Sound button click', error);
+    }
+  });
+} else {
+  console.warn('Sound button element not found');
+}
+
+// ─────────────────────────────────────────────
+// AUTO TOUR SYSTEM WITH ERROR HANDLING
+// ─────────────────────────────────────────────
+if (tourBtn) {
+  tourBtn.addEventListener('click', () => {
+    try {
+      if (isTouring) {
+        // Stop tour
+        isTouring = false;
+        if (tourInterval) {
+          clearInterval(tourInterval);
+          tourInterval = null;
+        }
+        safeSetContent(tourBtn, '▶ Start Tour');
+        safeToggleClass(tourBtn, 'touring', false);
+      } else {
+        // Start tour
+        if (exhibits.length === 0) {
+          console.warn('No exhibits available for tour');
+          return;
+        }
+        
+        isTouring = true;
+        safeSetContent(tourBtn, '⏹ Stop Tour');
+        safeToggleClass(tourBtn, 'touring', true);
+        
+        currentPortraitIndex = 0;
+        
+        function showNextPortrait() {
+          try {
+            if (!isTouring || currentPortraitIndex >= exhibits.length) return;
+            
+            focusTarget = exhibits[currentPortraitIndex];
+            isLocked = true;
+            
+            if (portraitCounterEl) portraitCounterEl.style.display = 'block';
+            safeSetContent(currentPortraitEl, String(currentPortraitIndex + 1));
+            
+            controls.enableRotate = false;
+            controls.enablePan = false;
+            controls.enableZoom = false;
+            
+            if (infoEl) infoEl.style.display = 'block';
+            updateInfoPanel(focusTarget, true);
+            
+            currentPortraitIndex = (currentPortraitIndex + 1) % exhibits.length;
+            
+            // Stop at the end
+            if (currentPortraitIndex === 0) {
+              setTimeout(() => {
+                if (isTouring) {
+                  isTouring = false;
+                  if (tourInterval) {
+                    clearInterval(tourInterval);
+                    tourInterval = null;
+                  }
+                  safeSetContent(tourBtn, '▶ Start Tour');
+                  safeToggleClass(tourBtn, 'touring', false);
+                }
+              }, 4000);
+            }
+          } catch (error) {
+            logError('showNextPortrait', error);
+          }
+        }
+        
+        showNextPortrait();
+        tourInterval = setInterval(showNextPortrait, 4000);
+      }
+    } catch (error) {
+      logError('Tour button click', error);
+    }
+  });
+} else {
+  console.warn('Tour button element not found');
+}
+
+// ─────────────────────────────────────────────
+// CLICK TO FOCUS WITH ERROR HANDLING
+// ─────────────────────────────────────────────
+window.addEventListener('click', (e) => {
+  try {
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(exhibits, true);
+
+    if (hits.length > 0) {
+      focusTarget = hits[0].object;
       isLocked = true;
       
-      portraitCounterEl.style.display = 'block';
-      currentPortraitEl.textContent = currentPortraitIndex + 1;
-      
+      currentPortraitIndex = exhibits.indexOf(focusTarget) + 1;
+
       controls.enableRotate = false;
       controls.enablePan = false;
       controls.enableZoom = false;
-      
-      infoEl.style.display = 'block';
-      updateInfoPanel(focusTarget, true);
-      
-      currentPortraitIndex = (currentPortraitIndex + 1) % exhibits.length;
-      
-      // Stop at the end
-      if (currentPortraitIndex === 0) {
-        setTimeout(() => {
-          if (isTouring) {
-            isTouring = false;
-            clearInterval(tourInterval);
-            tourBtn.textContent = '▶ Start Tour';
-            tourBtn.classList.remove('touring');
-          }
-        }, 4000);
-      }
-    }
-    
-    showNextPortrait();
-    tourInterval = setInterval(showNextPortrait, 4000);
-  }
-});
 
-// ─────────────────────────────────────────────
-// CLICK TO FOCUS
-// ─────────────────────────────────────────────
-window.addEventListener('click', (e) => {
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      if (portraitCounterEl) portraitCounterEl.style.display = 'block';
+      safeSetContent(currentPortraitEl, String(currentPortraitIndex));
 
-  raycaster.setFromCamera(mouse, camera);
-  const hits = raycaster.intersectObjects(exhibits, true);
-
-  if (hits.length > 0) {
-    focusTarget = hits[0].object;
-    isLocked = true;
-    
-    currentPortraitIndex = exhibits.indexOf(focusTarget) + 1;
-
-    controls.enableRotate = false;
-    controls.enablePan = false;
-    controls.enableZoom = false;
-
-    portraitCounterEl.style.display = 'block';
-    currentPortraitEl.textContent = currentPortraitIndex;
-
-    infoEl.style.display = 'block';
-    updateInfoPanel(focusTarget);
-  }
-});
-
-// ─────────────────────────────────────────────
-// KEYBOARD EVENTS
-// ─────────────────────────────────────────────
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    // Stop auto tour if running
-    if (isTouring) {
-      isTouring = false;
-      clearInterval(tourInterval);
-      tourBtn.textContent = '▶ Start Tour';
-      tourBtn.classList.remove('touring');
-    }
-    
-    // Exit portrait focus and go back to room view
-    clearFocusAndGoToRoom();
-  }
-  
-  // Arrow key navigation between portraits
-  if (isLocked && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
-    let newIndex = currentPortraitIndex - 1;
-    
-    if (e.key === 'ArrowRight') {
-      newIndex = (newIndex - 1 + exhibits.length) % exhibits.length;
-    } else if (e.key === 'ArrowLeft') {
-      newIndex = (newIndex + 1) % exhibits.length;
-    }
-    
-    const newPortrait = exhibits[newIndex];
-    const currentRoom = focusTarget ? getRoomFromPortrait(focusTarget) : null;
-    const newRoom = getRoomFromPortrait(newPortrait);
-    
-    // Check if we're changing rooms
-    if (currentRoom && newRoom && currentRoom !== newRoom) {
-      // Different room - navigate to room first, then focus portrait
-      clearFocus();
-      pendingPortraitFocus = { portrait: newPortrait, index: newIndex };
-      navigateToRoom(newRoom, null);
-    } else {
-      // Same room - just switch portrait
-      focusTarget = newPortrait;
-      currentPortraitIndex = newIndex + 1;
-      
-      currentPortraitEl.textContent = currentPortraitIndex;
+      if (infoEl) infoEl.style.display = 'block';
       updateInfoPanel(focusTarget);
     }
+  } catch (error) {
+    logError('Click handler', error);
   }
 });
 
 // ─────────────────────────────────────────────
-// ANIMATION LOOP
+// KEYBOARD EVENTS WITH ERROR HANDLING
 // ─────────────────────────────────────────────
-let wasNavigating = false;
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  // Rotate the eagle model
-  if (eagleModel) {
-    eagleModel.rotation.y += 0.005;
-  }
-
-  // Check if room navigation just completed - focus pending portrait
-  if (wasNavigating && !isNavigating && pendingPortraitFocus) {
-    // Small delay to let the view settle
-    setTimeout(() => {
-      if (pendingPortraitFocus) {
-        focusTarget = pendingPortraitFocus.portrait;
-        currentPortraitIndex = pendingPortraitFocus.index + 1;
-        isLocked = true;
-        
-        controls.enableRotate = false;
-        controls.enablePan = false;
-        controls.enableZoom = false;
-        
-        portraitCounterEl.style.display = 'block';
-        currentPortraitEl.textContent = currentPortraitIndex;
-        
-        infoEl.style.display = 'block';
-        updateInfoPanel(focusTarget);
-        
-        pendingPortraitFocus = null;
+window.addEventListener('keydown', (e) => {
+  try {
+    if (e.key === 'Escape') {
+      // Stop auto tour if running
+      if (isTouring) {
+        isTouring = false;
+        if (tourInterval) {
+          clearInterval(tourInterval);
+          tourInterval = null;
+        }
+        safeSetContent(tourBtn, '▶ Start Tour');
+        safeToggleClass(tourBtn, 'touring', false);
       }
-    }, 300);
-  }
-  wasNavigating = isNavigating;
-
-  if (focusTarget && isLocked) {
-    const targetPos = new THREE.Vector3();
-    focusTarget.getWorldPosition(targetPos);
-    
-    let cameraOffset = new THREE.Vector3(0, 0, 3.5);
-    
-    const facing = focusTarget.userData.facing;
-    if (facing === 'right') {
-      cameraOffset = new THREE.Vector3(3.5, 0, 0);
-    } else if (facing === 'left') {
-      cameraOffset = new THREE.Vector3(-3.5, 0, 0);
+      
+      // Exit portrait focus and go back to room view
+      clearFocusAndGoToRoom();
     }
     
-    camera.position.lerp(
-      new THREE.Vector3(
-        targetPos.x + cameraOffset.x,
-        targetPos.y,
-        targetPos.z + cameraOffset.z
-      ),
-      0.06
-    );
-    controls.target.lerp(targetPos, 0.08);
+    // Arrow key navigation between portraits
+    if (isLocked && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+      if (exhibits.length === 0) return;
+      
+      let newIndex = currentPortraitIndex - 1;
+      
+      if (e.key === 'ArrowRight') {
+        newIndex = (newIndex + 1) % exhibits.length;
+      } else if (e.key === 'ArrowLeft') {
+        newIndex = (newIndex - 1 + exhibits.length) % exhibits.length;
+      }
+      
+      const newPortrait = exhibits[newIndex];
+      if (!newPortrait) return;
+      
+      const currentRoom = focusTarget ? getRoomFromPortrait(focusTarget) : null;
+      const newRoom = getRoomFromPortrait(newPortrait);
+      
+      // Check if we're changing rooms
+      if (currentRoom && newRoom && currentRoom !== newRoom) {
+        // Different room - navigate to room first, then focus portrait
+        clearFocus();
+        pendingPortraitFocus = { portrait: newPortrait, index: newIndex };
+        navigateToRoom(newRoom, null);
+      } else {
+        // Same room - just switch portrait
+        focusTarget = newPortrait;
+        currentPortraitIndex = newIndex + 1;
+        
+        safeSetContent(currentPortraitEl, String(currentPortraitIndex));
+        updateInfoPanel(focusTarget);
+      }
+    }
+  } catch (error) {
+    logError('Keyboard event', error);
   }
-  
-  // Room navigation animation
-  updateNavigation();
+});
 
-  controls.update();
-  composer.render(); // Use post-processing composer
+// ─────────────────────────────────────────────
+// ANIMATION LOOP WITH ERROR HANDLING
+// ─────────────────────────────────────────────
+let wasNavigating = false;
+let animationFrameId = null;
+
+/**
+ * Main animation loop
+ * Handles eagle rotation, camera movement, and rendering
+ */
+function animate() {
+  try {
+    animationFrameId = requestAnimationFrame(animate);
+
+    // Rotate the eagle model
+    if (eagleModel) {
+      eagleModel.rotation.y += 0.005;
+    }
+
+    // Check if room navigation just completed - focus pending portrait
+    if (wasNavigating && !isNavigating && pendingPortraitFocus) {
+      // Small delay to let the view settle
+      setTimeout(() => {
+        try {
+          if (pendingPortraitFocus) {
+            focusTarget = pendingPortraitFocus.portrait;
+            currentPortraitIndex = pendingPortraitFocus.index + 1;
+            isLocked = true;
+            
+            controls.enableRotate = false;
+            controls.enablePan = false;
+            controls.enableZoom = false;
+            
+            if (portraitCounterEl) portraitCounterEl.style.display = 'block';
+            safeSetContent(currentPortraitEl, String(currentPortraitIndex));
+            
+            if (infoEl) infoEl.style.display = 'block';
+            updateInfoPanel(focusTarget);
+            
+            pendingPortraitFocus = null;
+          }
+        } catch (error) {
+          logError('Pending portrait focus', error);
+        }
+      }, 300);
+    }
+    wasNavigating = isNavigating;
+
+    // Smooth camera movement when focusing on portrait
+    if (focusTarget && isLocked) {
+      const targetPos = new THREE.Vector3();
+      focusTarget.getWorldPosition(targetPos);
+      
+      let cameraOffset = new THREE.Vector3(0, 0, 3.5);
+      
+      const facing = focusTarget.userData.facing;
+      if (facing === 'right') {
+        cameraOffset = new THREE.Vector3(3.5, 0, 0);
+      } else if (facing === 'left') {
+        cameraOffset = new THREE.Vector3(-3.5, 0, 0);
+      }
+      
+      camera.position.lerp(
+        new THREE.Vector3(
+          targetPos.x + cameraOffset.x,
+          targetPos.y,
+          targetPos.z + cameraOffset.z
+        ),
+        0.06
+      );
+      controls.target.lerp(targetPos, 0.08);
+    }
+    
+    // Room navigation animation
+    updateNavigation();
+
+    controls.update();
+    composer.render(); // Use post-processing composer
+  } catch (error) {
+    logError('Animation loop', error);
+    // Continue animation even if error occurs
+  }
+}
+
+/**
+ * Stops the animation loop (for cleanup)
+ */
+export function stopAnimation() {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
 }
 
 // ─────────────────────────────────────────────
-// INITIALIZATION
+// INITIALIZATION WITH ERROR HANDLING
 // ─────────────────────────────────────────────
+/**
+ * Initializes all interactions and starts the application
+ * Called from main.js after all assets are created
+ */
 export function initInteractions() {
-  // Initialize room navigation with callback to clear focus
-  initRoomNavigation(clearFocus);
-  
-  // Start animation loop
-  animate();
-  
-  // Hide loading screen after everything is ready
-  setTimeout(() => {
-    stopLoaderAnimation();
-    document.getElementById('loading-screen').classList.add('hidden');
-  }, 2200);
+  try {
+    // Initialize room navigation with callback to clear focus
+    initRoomNavigation(clearFocus);
+    
+    // Start animation loop
+    animate();
+    
+    // Hide loading screen is now handled by loader.js when assets complete
+    console.log('Interactions initialized successfully');
+  } catch (error) {
+    logError('Initialization', error);
+    // Fallback: try to start animation even if other parts failed
+    try {
+      animate();
+    } catch (animError) {
+      console.error('Fatal error: Could not start animation', animError);
+    }
+  }
 }
+
+// Handle window resize with error handling
+window.addEventListener('resize', () => {
+  try {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+  } catch (error) {
+    logError('Window resize', error);
+  }
+});

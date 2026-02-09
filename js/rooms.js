@@ -1,10 +1,14 @@
 /**
  * ROOMS.JS - Room Builder, Central Hallway, Entrance Hall, Eagle Monument
+ * 
+ * @module rooms
+ * @description Creates museum rooms, monuments, and decorative elements with proper lighting and shadows
  */
 
 import * as THREE from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { scene, floorMat, wallMat } from './scene.js';
+import { registerAsset } from './loader.js';
 
 // Exported eagle model for rotation animation
 export let eagleModel = null;
@@ -282,8 +286,8 @@ function createChandelier(x, y, z) {
   chandelier.position.set(x, y, z);
   scene.add(chandelier);
   
-  // Add point light for the chandelier
-  const chandelierLight = new THREE.PointLight(0xfff5e6, 1.5, 15);
+  // Add point light for the chandelier (increased brightness)
+  const chandelierLight = new THREE.PointLight(0xfff5e6, 2.5, 20);
   chandelierLight.position.set(x, y - 1.5, z);
   chandelierLight.castShadow = true;
   chandelierLight.shadow.mapSize.width = 512;
@@ -539,6 +543,7 @@ export function buildEagleMonument() {
   scene.add(pedestalTop);
 
   // Load Albanian Double-Headed Eagle 3D Model
+  const eagleAssetLoaded = registerAsset();
   const loader = new STLLoader();
   loader.load(
     '3d/Albanian_Eagle.stl',
@@ -569,34 +574,48 @@ export function buildEagleMonument() {
       eagleModel.receiveShadow = true;
       
       scene.add(eagleModel);
+      
+      // Mark asset as loaded
+      eagleAssetLoaded();
     },
     (progress) => {
-      console.log('Loading eagle:', (progress.loaded / progress.total * 100) + '%');
+      if (progress.lengthComputable) {
+        const percentComplete = (progress.loaded / progress.total) * 100;
+        console.log('Loading eagle monument:', percentComplete.toFixed(0) + '%');
+      }
     },
     (error) => {
       console.error('Error loading eagle model:', error);
+      
       // Fallback to simple placeholder if model fails to load
-      const fallbackGeom = new THREE.BoxGeometry(2, 2, 0.2);
-      const fallbackMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-      eagleModel = new THREE.Mesh(fallbackGeom, fallbackMat);
-      eagleModel.position.set(0, 5.5, -14);
-      scene.add(eagleModel);
+      try {
+        const fallbackGeom = new THREE.BoxGeometry(2, 2, 0.2);
+        const fallbackMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        eagleModel = new THREE.Mesh(fallbackGeom, fallbackMat);
+        eagleModel.position.set(0, 5.5, -14);
+        scene.add(eagleModel);
+      } catch (fallbackError) {
+        console.error('Fallback eagle monument also failed:', fallbackError);
+      }
+      
+      // Still mark as loaded even on error
+      eagleAssetLoaded();
     }
   );
 
-  // Eagle spotlight
-  const eagleSpotlight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 4, 0.3, 1);
+  // Eagle spotlight (increased brightness)
+  const eagleSpotlight = new THREE.SpotLight(0xffffff, 3.5, 15, Math.PI / 4, 0.3, 1);
   eagleSpotlight.position.set(0, 9, -14);
   eagleSpotlight.target.position.set(0, 4, -14);
   scene.add(eagleSpotlight);
   scene.add(eagleSpotlight.target);
 
-  // Red accent lights around pedestal
-  const pedastalLight1 = new THREE.PointLight(0xff0000, 0.5, 5);
+  // Red accent lights around pedestal (increased)
+  const pedastalLight1 = new THREE.PointLight(0xff0000, 1.0, 8);
   pedastalLight1.position.set(2, 0.5, -14);
   scene.add(pedastalLight1);
 
-  const pedastalLight2 = new THREE.PointLight(0xff0000, 0.5, 5);
+  const pedastalLight2 = new THREE.PointLight(0xff0000, 1.0, 8);
   pedastalLight2.position.set(-2, 0.5, -14);
   scene.add(pedastalLight2);
   
@@ -769,7 +788,7 @@ export function buildEntranceHall() {
   chandelier.position.set(0, 7, 18);
   scene.add(chandelier);
 
-  const chandelierLight = new THREE.PointLight(0xfff5e6, 1.5, 15);
+  const chandelierLight = new THREE.PointLight(0xfff5e6, 2.5, 20);
   chandelierLight.position.set(0, 6.5, 18);
   scene.add(chandelierLight);
 

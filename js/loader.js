@@ -1,9 +1,84 @@
 /**
- * LOADER.JS - 3D Eagle loading animation
+ * LOADER.JS - 3D Eagle loading animation with progress tracking
+ * 
+ * @module loader
+ * @description Handles the loading screen animation and progress tracking for assets
  */
 
 import * as THREE from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+// ═══════════════════════════════════════════
+// Loading Progress Tracking
+// ═══════════════════════════════════════════
+const loadingManager = {
+  total: 0,
+  loaded: 0,
+  startTime: Date.now(),
+  minLoadTime: 1500, // Minimum time to show loading screen (ms)
+};
+
+const loadingBar = document.querySelector('.loading-bar');
+const loadingScreen = document.getElementById('loading-screen');
+
+/**
+ * Updates the loading progress bar
+ * @param {number} progress - Progress value between 0 and 1
+ */
+function updateLoadingProgress(progress) {
+  if (loadingBar) {
+    loadingBar.style.width = `${progress * 100}%`;
+  }
+}
+
+/**
+ * Registers a new asset to be loaded
+ * @returns {Function} Callback function to call when asset is loaded
+ */
+export function registerAsset() {
+  loadingManager.total++;
+  
+  return function onAssetLoaded() {
+    loadingManager.loaded++;
+    const progress = loadingManager.loaded / loadingManager.total;
+    updateLoadingProgress(progress);
+    
+    // Check if all assets are loaded
+    if (loadingManager.loaded >= loadingManager.total) {
+      checkLoadingComplete();
+    }
+  };
+}
+
+/**
+ * Checks if minimum load time has elapsed and hides loading screen
+ */
+function checkLoadingComplete() {
+  const elapsed = Date.now() - loadingManager.startTime;
+  const remaining = Math.max(0, loadingManager.minLoadTime - elapsed);
+  
+  setTimeout(() => {
+    hideLoadingScreen();
+  }, remaining);
+}
+
+/**
+ * Hides the loading screen with fade animation
+ */
+function hideLoadingScreen() {
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+    
+    // Clean up after transition
+    setTimeout(() => {
+      stopLoaderAnimation();
+    }, 800); // Match CSS transition duration
+  }
+}
+
+// ═══════════════════════════════════════════
+// Loading Screen 3D Eagle Animation
+// ═══════════════════════════════════════════
 
 // Setup mini scene for loading screen
 const canvas = document.getElementById('loading-eagle-canvas');
@@ -35,6 +110,8 @@ loaderScene.add(backLight);
 let loaderEagle = null;
 let loaderAnimationId = null;
 
+const eagleAssetLoaded = registerAsset();
+
 const stlLoader = new STLLoader();
 stlLoader.load(
   '3d/Albanian_Eagle.stl',
@@ -61,19 +138,42 @@ stlLoader.load(
     
     // Start animation
     animateLoader();
+    
+    // Mark asset as loaded
+    eagleAssetLoaded();
   },
-  undefined,
+  (xhr) => {
+    // Progress callback for STL loading
+    if (xhr.lengthComputable) {
+      const percentComplete = xhr.loaded / xhr.total;
+      updateLoadingProgress(percentComplete * 0.5); // Eagle is 50% of loading
+    }
+  },
   (error) => {
-    console.error('Loader eagle failed:', error);
+    console.error('Loader eagle failed to load:', error);
+    
     // Fallback: simple rotating cube
-    const fallbackGeom = new THREE.BoxGeometry(1.5, 1.5, 0.2);
-    const fallbackMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.8 });
-    loaderEagle = new THREE.Mesh(fallbackGeom, fallbackMat);
-    loaderScene.add(loaderEagle);
-    animateLoader();
+    try {
+      const fallbackGeom = new THREE.BoxGeometry(1.5, 1.5, 0.2);
+      const fallbackMat = new THREE.MeshStandardMaterial({ 
+        color: 0x111111, 
+        metalness: 0.8 
+      });
+      loaderEagle = new THREE.Mesh(fallbackGeom, fallbackMat);
+      loaderScene.add(loaderEagle);
+      animateLoader();
+    } catch (fallbackError) {
+      console.error('Fallback loader also failed:', fallbackError);
+    }
+    
+    // Still mark as loaded even on error
+    eagleAssetLoaded();
   }
 );
 
+/**
+ * Animation loop for the loading screen eagle
+ */
 function animateLoader() {
   loaderAnimationId = requestAnimationFrame(animateLoader);
   
@@ -84,16 +184,32 @@ function animateLoader() {
   loaderRenderer.render(loaderScene, loaderCamera);
 }
 
-// Export cleanup function
+/**
+ * Stops the loader animation and cleans up resources
+ * Called when the loading screen is hidden
+ */
 export function stopLoaderAnimation() {
   if (loaderAnimationId) {
     cancelAnimationFrame(loaderAnimationId);
     loaderAnimationId = null;
   }
-  // Dispose resources
+  
+  // Dispose resources to free memory
   if (loaderEagle) {
-    loaderEagle.geometry.dispose();
-    loaderEagle.material.dispose();
+    if (loaderEagle.geometry) {
+      loaderEagle.geometry.dispose();
+    }
+    if (loaderEagle.material) {
+      loaderEagle.material.dispose();
+    }
   }
-  loaderRenderer.dispose();
+  
+  if (loaderRenderer) {
+    loaderRenderer.dispose();
+  }
+  
+  // Clear the scene
+  while (loaderScene.children.length > 0) {
+    loaderScene.remove(loaderScene.children[0]);
+  }
 }

@@ -1,11 +1,17 @@
 /**
  * NAVIGATION.JS - Room Navigation System
+ * 
+ * @module navigation
+ * @description Handles smooth camera transitions between museum rooms with animation
  */
 
 import * as THREE from 'three';
 import { camera, controls } from './scene.js';
 
-// Room positions
+/**
+ * Room positions and configurations
+ * @type {Object.<string, {x: number, z: number, facing: string}>}
+ */
 export const roomPositions = {
   'entrance': { x: 0, z: 18, facing: 'front' },
   'historical': { x: -10, z: 0, facing: 'right' },

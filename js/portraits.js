@@ -1,11 +1,19 @@
 /**
  * PORTRAITS.JS - Portrait Creator, Portrait Data, Exhibits Array
+ * 
+ * @module portraits
+ * @description Creates portrait meshes with frames, lighting, and metadata
+ * Contains all portrait data for Albanian historical figures and celebrities
  */
 
 import * as THREE from 'three';
 import { scene } from './scene.js';
 
-// Array to store all clickable portrait meshes
+/**
+ * Array to store all clickable portrait meshes
+ * @type {THREE.Mesh[]}
+ * @exports
+ */
 export const exhibits = [];
 
 // Portrait data with detailed information and Wikipedia images
@@ -165,7 +173,7 @@ export const portraitData = {
     achievement: 'First unified Albanian political organization', 
     quote: '"United for Albanian lands."', 
     wiki: 'https://en.wikipedia.org/wiki/League_of_Prizren',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/League_of_Prizren_Map.png/330px-League_of_Prizren_Map.png'
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/3f/The_delegation_of_Sanjak_of_Shkodra_in_the_League_of_Prizren.jpg'
   },
   'Alphabet Congress': { 
     years: 'November 14-22, 1908', 
