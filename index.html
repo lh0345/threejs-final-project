@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>The Albanian Hall of Legacy</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -17,12 +19,21 @@
 
   <!-- Title Bar -->
   <div class="title-bar">
-    <div>
-      <h1>🦅 THE ALBANIAN HALL OF LEGACY <span class="subtitle">Virtual Museum</span></h1>
+    <div class="title-content">
+      <i data-lucide="landmark" class="title-icon"></i>
+      <div>
+        <h1>THE ALBANIAN HALL OF LEGACY</h1>
+        <span class="subtitle">Virtual Museum</span>
+      </div>
     </div>
     <div class="controls">
-      <button id="auto-tour-btn" class="control-btn">▶ Start Tour</button>
-      <button id="sound-btn" class="control-btn">🔇</button>
+      <button id="auto-tour-btn" class="control-btn">
+        <i data-lucide="play" class="btn-icon"></i>
+        <span>Start Tour</span>
+      </button>
+      <button id="sound-btn" class="control-btn">
+        <i data-lucide="volume-x" class="btn-icon"></i>
+      </button>
     </div>
   </div>
 
@@ -38,13 +49,34 @@
 
   <!-- Room Navigation -->
   <div class="room-nav">
-    <button class="room-btn active" data-room="entrance"><span>🏛️</span> Entrance Hall</button>
-    <button class="room-btn" data-room="historical"><span>⚔️</span> Historical Figures</button>
-    <button class="room-btn" data-room="scientists"><span>🔬</span> Scientists & Thinkers</button>
-    <button class="room-btn" data-room="actors"><span>🎬</span> Actors</button>
-    <button class="room-btn" data-room="international"><span>🌍</span> International Contributors</button>
-    <button class="room-btn" data-room="singers"><span>🎤</span> Singers</button>
-    <button class="room-btn" data-room="events"><span>📜</span> Historical Events</button>
+    <button class="room-btn active" data-room="entrance">
+      <i data-lucide="columns" class="nav-icon"></i>
+      <span>Entrance Hall</span>
+    </button>
+    <button class="room-btn" data-room="historical">
+      <i data-lucide="sword" class="nav-icon"></i>
+      <span>Historical Figures</span>
+    </button>
+    <button class="room-btn" data-room="scientists">
+      <i data-lucide="flask-conical" class="nav-icon"></i>
+      <span>Scientists & Thinkers</span>
+    </button>
+    <button class="room-btn" data-room="actors">
+      <i data-lucide="film" class="nav-icon"></i>
+      <span>Actors</span>
+    </button>
+    <button class="room-btn" data-room="international">
+      <i data-lucide="globe" class="nav-icon"></i>
+      <span>International Contributors</span>
+    </button>
+    <button class="room-btn" data-room="singers">
+      <i data-lucide="mic-2" class="nav-icon"></i>
+      <span>Singers</span>
+    </button>
+    <button class="room-btn" data-room="events">
+      <i data-lucide="scroll-text" class="nav-icon"></i>
+      <span>Historical Events</span>
+    </button>
   </div>
 
   <!-- Info Panel -->
@@ -65,5 +97,12 @@
   
   <!-- Main Application -->
   <script type="module" src="js/main.js"></script>
+  
+  <!-- Initialize Lucide Icons -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
 </body>
 </html>

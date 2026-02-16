@@ -9,12 +9,12 @@ export const CONFIG = {
   // SCENE SETTINGS
   // ═══════════════════════════════════════════
   scene: {
-    backgroundColor: 0x0a0505,
+    backgroundColor: 0x1a1a1a,
     fog: {
       enabled: true,
-      color: 0x0a0505,
-      near: 12,
-      far: 45
+      color: 0x1a1a1a,
+      near: 20,
+      far: 55
     }
   },
 
@@ -38,7 +38,7 @@ export const CONFIG = {
     shadowMapEnabled: true,
     shadowMapType: 'PCFSoft', // 'PCFSoft', 'PCF', 'VSM'
     toneMapping: 'ACESFilmic', // 'ACESFilmic', 'Linear', 'Reinhard'
-    toneMappingExposure: 1.4
+    toneMappingExposure: 1.1
   },
 
   // ═══════════════════════════════════════════
@@ -73,11 +73,11 @@ export const CONFIG = {
   lighting: {
     ambient: {
       color: 0xffffff,
-      intensity: 0.6
+      intensity: 1.8
     },
     main: {
       color: 0xffffff,
-      intensity: 1.8,
+      intensity: 2.2,
       position: { x: 5, y: 15, z: 5 },
       castShadow: true,
       shadowMapSize: 2048,
@@ -90,17 +90,17 @@ export const CONFIG = {
   // ═══════════════════════════════════════════
   materials: {
     floor: {
-      color: 0x120808,
+      color: 0x2a2a2a,
       roughness: 0.85,
       metalness: 0.0
     },
     wall: {
-      color: 0x1a0d0d,
+      color: 0x333333,
       roughness: 0.6,
       metalness: 0.1
     },
     ceiling: {
-      color: 0x0a0505,
+      color: 0x1a1a1a,
       roughness: 0.9,
       metalness: 0.0
     },
@@ -185,9 +185,9 @@ export const CONFIG = {
     frameThickness: 0.08,
     frameDepth: 0.12,
     frameColor: 0x1a0a00,
-    spotlightIntensity: 40,
+    spotlightIntensity: 8,
     spotlightAngle: Math.PI / 6,
-    spotlightPenumbra: 0.3,
+    spotlightPenumbra: 0.5,
     spotlightDistance: 5,
     spotlightDecay: 2
   },
@@ -215,7 +215,7 @@ export const CONFIG = {
     roughness: 0.2,
     rotationSpeed: 0.002, // Slow rotation speed
     spotlightColor: 0x8b0000,
-    spotlightIntensity: 100,
+    spotlightIntensity: 20,
     enableAnimation: true
   },
 

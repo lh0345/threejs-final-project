@@ -287,8 +287,8 @@ function createChandelier(x, y, z) {
   chandelier.position.set(x, y, z);
   scene.add(chandelier);
   
-  // Add point light for the chandelier (increased brightness)
-  const chandelierLight = new THREE.PointLight(0xfff5e6, 2.5, 20);
+  // Add point light for the chandelier (subtle warm glow)
+  const chandelierLight = new THREE.PointLight(0xfff5e6, 1.2, 20);
   chandelierLight.position.set(x, y - 1.5, z);
   chandelierLight.castShadow = true;
   chandelierLight.shadow.mapSize.width = 512;
@@ -604,19 +604,19 @@ export function buildEagleMonument() {
     }
   );
 
-  // Eagle spotlight (increased brightness)
-  const eagleSpotlight = new THREE.SpotLight(0xffffff, 3.5, 15, Math.PI / 4, 0.3, 1);
+  // Eagle spotlight (subtle)
+  const eagleSpotlight = new THREE.SpotLight(0xffffff, 1.5, 15, Math.PI / 4, 0.4, 1);
   eagleSpotlight.position.set(0, 9, -14);
   eagleSpotlight.target.position.set(0, 4, -14);
   scene.add(eagleSpotlight);
   scene.add(eagleSpotlight.target);
 
-  // Red accent lights around pedestal (increased)
-  const pedastalLight1 = new THREE.PointLight(0xff0000, 1.0, 8);
+  // Red accent lights around pedestal (subtle)
+  const pedastalLight1 = new THREE.PointLight(0xff0000, 0.4, 8);
   pedastalLight1.position.set(2, 0.5, -14);
   scene.add(pedastalLight1);
 
-  const pedastalLight2 = new THREE.PointLight(0xff0000, 1.0, 8);
+  const pedastalLight2 = new THREE.PointLight(0xff0000, 0.4, 8);
   pedastalLight2.position.set(-2, 0.5, -14);
   scene.add(pedastalLight2);
   
@@ -789,7 +789,7 @@ export function buildEntranceHall() {
   chandelier.position.set(0, 7, 18);
   scene.add(chandelier);
 
-  const chandelierLight = new THREE.PointLight(0xfff5e6, 2.5, 20);
+  const chandelierLight = new THREE.PointLight(0xfff5e6, 1.2, 20);
   chandelierLight.position.set(0, 6.5, 18);
   scene.add(chandelierLight);
 

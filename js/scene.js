@@ -138,22 +138,22 @@ mainLight.shadow.camera.bottom = -30;
 mainLight.shadow.bias = CONFIG.lighting.main.shadowBias;
 scene.add(mainLight);
 
-// Albanian Red accent lights (increased for atmosphere)
-const rimLight = new THREE.DirectionalLight(0xff3333, 0.5);
+// Albanian Red accent lights (subtle for atmosphere)
+const rimLight = new THREE.DirectionalLight(0xff3333, 0.25);
 rimLight.position.set(-10, 6, -10);
 scene.add(rimLight);
 
-const rimLight2 = new THREE.DirectionalLight(0xff2020, 0.4);
+const rimLight2 = new THREE.DirectionalLight(0xff2020, 0.2);
 rimLight2.position.set(10, 6, -10);
 scene.add(rimLight2);
 
-const warmAccent = new THREE.PointLight(0xff6644, 0.8, 15);
+const warmAccent = new THREE.PointLight(0xff6644, 0.4, 15);
 warmAccent.position.set(0, 2.5, 0);
 scene.add(warmAccent);
 
 // Floor detail grid (visual scale reference) - Red accents
 const grid = new THREE.GridHelper(60, 30, 0x3a1515, 0x150808);
-grid.material.opacity = 0.25;
+grid.material.opacity = 0.15;
 grid.material.transparent = true;
 scene.add(grid);
 

@@ -77,6 +77,34 @@ function safeSetHTML(element, html) {
 }
 
 /**
+ * Updates Lucide icon in a button
+ * @param {HTMLElement} button - Button element containing the icon
+ * @param {string} iconName - Name of the Lucide icon
+ * @param {string} text - Optional text to display after icon
+ */
+function updateButtonIcon(button, iconName, text = '') {
+  try {
+    if (!button) return;
+    
+    const iconEl = button.querySelector('i');
+    if (iconEl) {
+      iconEl.setAttribute('data-lucide', iconName);
+      // Re-initialize the icon
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+    
+    const textEl = button.querySelector('span');
+    if (textEl && text) {
+      textEl.textContent = text;
+    }
+  } catch (error) {
+    logError('updateButtonIcon', error);
+  }
+}
+
+/**
  * Toggles CSS classes
  * @param {HTMLElement} element - DOM element to modify
  * @param {string} className - Class name to toggle
@@ -210,7 +238,7 @@ if (ambientAudio) {
       
       // Update UI to show audio unavailable
       if (soundBtn) {
-        soundBtn.textContent = '🔇';
+        updateButtonIcon(soundBtn, 'volume-x');
         soundBtn.disabled = true;
         soundBtn.title = 'Audio unavailable';
       }
@@ -237,7 +265,7 @@ if (soundBtn) {
       
       if (isSoundPlaying) {
         ambientAudio.pause();
-        safeSetContent(soundBtn, '🔇');
+        updateButtonIcon(soundBtn, 'volume-x');
         safeToggleClass(soundBtn, 'playing', false);
         isSoundPlaying = false;
       } else {
@@ -247,7 +275,7 @@ if (soundBtn) {
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              safeSetContent(soundBtn, '🔊');
+              updateButtonIcon(soundBtn, 'volume-2');
               safeToggleClass(soundBtn, 'playing', true);
               isSoundPlaying = true;
             })
@@ -279,7 +307,7 @@ if (tourBtn) {
           clearInterval(tourInterval);
           tourInterval = null;
         }
-        safeSetContent(tourBtn, '▶ Start Tour');
+        updateButtonIcon(tourBtn, 'play', 'Start Tour');
         safeToggleClass(tourBtn, 'touring', false);
       } else {
         // Start tour
@@ -289,7 +317,7 @@ if (tourBtn) {
         }
         
         isTouring = true;
-        safeSetContent(tourBtn, '⏹ Stop Tour');
+        updateButtonIcon(tourBtn, 'square', 'Stop Tour');
         safeToggleClass(tourBtn, 'touring', true);
         
         currentPortraitIndex = 0;
@@ -322,7 +350,7 @@ if (tourBtn) {
                     clearInterval(tourInterval);
                     tourInterval = null;
                   }
-                  safeSetContent(tourBtn, '▶ Start Tour');
+                  updateButtonIcon(tourBtn, 'play', 'Start Tour');
                   safeToggleClass(tourBtn, 'touring', false);
                 }
               }, 4000);
@@ -388,7 +416,7 @@ window.addEventListener('keydown', (e) => {
           clearInterval(tourInterval);
           tourInterval = null;
         }
-        safeSetContent(tourBtn, '▶ Start Tour');
+        updateButtonIcon(tourBtn, 'play', 'Start Tour');
         safeToggleClass(tourBtn, 'touring', false);
       }
       

@@ -58,7 +58,7 @@ class PortraitFactory {
   
   // Draw silhouette placeholder on canvas
   drawSilhouette(ctx) {
-    ctx.fillStyle = '#3a2020';
+    ctx.fillStyle = '#4a3030';
     ctx.beginPath();
     ctx.ellipse(128, 100, 50, 60, 0, 0, Math.PI * 2);
     ctx.fill();
@@ -75,15 +75,15 @@ class PortraitFactory {
     canvas.height = CANVAS_HEIGHT;
     const ctx = canvas.getContext('2d');
     
-    // Background gradient
+    // Background gradient (lighter for better visibility)
     const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
-    gradient.addColorStop(0, '#2a1515');
-    gradient.addColorStop(1, '#1a0a0a');
+    gradient.addColorStop(0, '#3a2a2a');
+    gradient.addColorStop(1, '#2a1a1a');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     
     // Name plate
-    ctx.fillStyle = '#1a0505';
+    ctx.fillStyle = '#2a1515';
     ctx.fillRect(10, 280, 236, 50);
     ctx.strokeStyle = '#8b0000';
     ctx.lineWidth = 2;
